@@ -1,0 +1,40 @@
+[gd_scene load_steps=7 format=3 uid="uid://cf4bi5jinhvnj"]
+
+[ext_resource type="Script" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="1_eyqge"]
+[ext_resource type="Texture2D" uid="uid://btacm7xiepi28" path="res://addons/kenney_prototype_textures/dark/texture_01.png" id="2_ttwpb"]
+[ext_resource type="PackedScene" uid="uid://dw8ac0blwhhtw" path="res://scenes/player.tscn" id="3_r0j1t"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a6ur3"]
+albedo_color = Color(0, 0.752941, 0.976471, 1)
+albedo_texture = ExtResource("2_ttwpb")
+uv1_scale = Vector3(10, 10, 10)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_koe0u"]
+material = SubResource("StandardMaterial3D_a6ur3")
+size = Vector2(1000, 1000)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_f1s52"]
+size = Vector3(1000, 5, 1000)
+
+[node name="Game" type="Node3D"]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, -2.60387e-21, 3.90581e-21, -2.32241e-27, 0.83205, 0.5547, -4.6942e-21, -0.5547, 0.83205, 2.08165e-12, 58.1641, 15)
+fov = 72.9705
+
+[node name="PhantomCameraHost" type="Node" parent="Camera3D"]
+script = ExtResource("1_eyqge")
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_koe0u")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Ground"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D"]
+shape = SubResource("BoxShape3D_f1s52")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.0567102, 0.998391, 0, -0.998391, 0.0567102, 0, 0, 0)
+
+[node name="Player" parent="." instance=ExtResource("3_r0j1t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 53.1641, 0)

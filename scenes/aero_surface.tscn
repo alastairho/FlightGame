@@ -1,0 +1,31 @@
+[gd_scene load_steps=6 format=3 uid="uid://c83knigmvelww"]
+
+[ext_resource type="Script" path="res://scripts/aeroSurfaceConfig.gd" id="1_l27lj"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xn1yr"]
+albedo_color = Color(0, 0.505882, 1, 0.392157)
+
+[sub_resource type="QuadMesh" id="QuadMesh_gueep"]
+lightmap_size_hint = Vector2i(7, 7)
+material = SubResource("StandardMaterial3D_xn1yr")
+orientation = 1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u2vmc"]
+albedo_color = Color(1, 0.898039, 0.321569, 0.392157)
+
+[sub_resource type="QuadMesh" id="QuadMesh_mrp7t"]
+material = SubResource("StandardMaterial3D_u2vmc")
+orientation = 1
+
+[node name="AeroSurface" type="Node3D"]
+transform = Transform3D(0.998445, 0, 0, 0, 0.998445, 0, 0, 0, 0.998445, 0, 0, 0)
+script = ExtResource("1_l27lj")
+
+[node name="ASWing" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 2.08165e-12)
+mesh = SubResource("QuadMesh_gueep")
+
+[node name="ASAileron" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+mesh = SubResource("QuadMesh_mrp7t")
