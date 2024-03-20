@@ -19,8 +19,8 @@ size = Vector3(1000, 5, 1000)
 [node name="Game" type="Node3D"]
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, -2.60387e-21, 3.90581e-21, -2.32241e-27, 0.83205, 0.5547, -4.6942e-21, -0.5547, 0.83205, 2.08165e-12, 58.1641, 15)
-fov = 72.9705
+transform = Transform3D(1, 0, 0, 0, 0.986393, 0.164399, 0, -0.164399, 0.986393, 2.08165e-12, 16.1067, 15)
+fov = 74.528
 
 [node name="PhantomCameraHost" type="Node" parent="Camera3D"]
 script = ExtResource("1_eyqge")
@@ -37,4 +37,4 @@ shape = SubResource("BoxShape3D_f1s52")
 transform = Transform3D(1, 0, 0, 0, 0.0567102, 0.998391, 0, -0.998391, 0.0567102, 0, 0, 0)
 
 [node name="Player" parent="." instance=ExtResource("3_r0j1t")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 53.1641, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.1067, 0)

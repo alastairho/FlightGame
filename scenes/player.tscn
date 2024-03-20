@@ -5,20 +5,19 @@
 
 [node name="Player" type="Node3D"]
 
-[node name="Aircraft" parent="." instance=ExtResource("1_g3hc2")]
+[node name="F16" parent="." instance=ExtResource("1_g3hc2")]
 
-[node name="PhantomCamera3D" type="Node3D" parent="Aircraft"]
-transform = Transform3D(1, -2.85187e-20, 1.71112e-19, 0, 0.986393, 0.164399, -1.73472e-19, -0.164399, 0.986393, 2.08165e-12, 5, 15)
+[node name="PhantomCamera3D" type="Node3D" parent="F16"]
+transform = Transform3D(1, 0, 0, 0, 0.986393, 0.164399, 0, -0.164399, 0.986393, 2.08165e-12, 5, 15)
 script = ExtResource("2_27i80")
 priority_override = false
 priority = 0
 follow_mode = 2
-follow_target = NodePath("..")
+follow_target = NodePath("")
 follow_parameters/target_offset = Vector3(2.08165e-12, 5, 15)
 follow_parameters/damping = false
 look_at_mode = 2
-look_at_target = NodePath("..")
-look_at_parameters/look_at_target_offset = Vector3(2.08165e-12, 2.5, 2.08165e-12)
+look_at_target = NodePath("")
 tween_parameters = null
 tween_on_load = true
 inactive_update_mode = 0
