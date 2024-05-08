@@ -2,3 +2,5 @@ res://scenes/game.tscn
 res://scenes/F16.tscn
 res://scenes/aero_surface.tscn
 res://scenes/forces_debug.tscn
+res://scripts/aircraftPhysics.gd
+res://scripts/surfaceConfig.gd

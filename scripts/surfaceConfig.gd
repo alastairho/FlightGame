@@ -1,9 +1,6 @@
 @tool
 extends Node3D
 
-@export_group("Body")
-@export var skinFriction = 0
-
 @export_group("Airfoil")
 @export var aileronRatio = 0.00
 @export var stallAOA = 0
