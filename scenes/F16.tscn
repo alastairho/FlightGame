@@ -2,14 +2,15 @@
 
 [ext_resource type="PackedScene" uid="uid://cnl7e73gppuft" path="res://assets/Planes.glb" id="1_4vhwp"]
 [ext_resource type="Script" path="res://scripts/aircraftPhysics.gd" id="1_o85qo"]
-[ext_resource type="Script" path="res://scripts/aeroSurfaceController.gd" id="3_hn6qv"]
+[ext_resource type="Script" path="res://scripts/surfaceController.gd" id="3_yyvpc"]
 [ext_resource type="PackedScene" uid="uid://c83knigmvelww" path="res://scenes/aero_surface.tscn" id="4_l2alc"]
-[ext_resource type="Script" path="res://scripts/aeroSurfaceConfig.gd" id="5_pv7xg"]
+[ext_resource type="PackedScene" uid="uid://dntk6lj36wcm" path="res://scenes/forces_debug.tscn" id="5_tljlt"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_pg1gg"]
 size = Vector3(10, 1, 15)
 
 [node name="F16" type="RigidBody3D"]
+mass = 2200.0
 script = ExtResource("1_o85qo")
 
 [node name="F16Model" parent="." instance=ExtResource("1_4vhwp")]
@@ -19,9 +20,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, -0.25, 2.08165e-
 shape = SubResource("BoxShape3D_pg1gg")
 
 [node name="AeroSurfaceController" type="Node3D" parent="."]
-script = ExtResource("3_hn6qv")
+script = ExtResource("3_yyvpc")
 
-[node name="AeroSurface" parent="AeroSurfaceController" instance=ExtResource("4_l2alc")]
-transform = Transform3D(3, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 2.08165e-12, 0.25, 2.6)
-script = ExtResource("5_pv7xg")
-aileronRatio = 0.2
+[node name="AeroSurfaceConfig" parent="AeroSurfaceController" instance=ExtResource("4_l2alc")]
+transform = Transform3D(9.13213, 0, 0, 0, 1, 0, 0, 0, 1.87073, 2.08165e-12, 0.1, 2.87251)
+aileronRatio = 0.3
+
+[node name="ForcesDebug" parent="AeroSurfaceController/AeroSurfaceConfig" instance=ExtResource("5_tljlt")]
+transform = Transform3D(0.109503, 0, 0, 0, 1, 0, 0, 0, 0.534551, 0, 0, 0)
