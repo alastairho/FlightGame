@@ -19,21 +19,20 @@ func _player_input():
 		throttle += throttleSens
 	if Input.is_action_pressed("ThrottleDown"):
 		throttle -= throttleSens
-	if throttle < 0:
-		throttle = 0
-	elif throttle > 1:
-		throttle = 1
+	throttle = max(0,min(throttle,1)) #Clamps throttle between 0 and 1
 		
 	if Input.is_action_pressed("PitchUp"):
 		pitch += pitchSens
 	if Input.is_action_pressed("PitchDown"):
 		pitch -= pitchSens
+	pitch = max(-1,min(pitch,1)) #Clamps pitch between -1 and 1
 		
 	if Input.is_action_pressed("RollAnticlockwise"):
 		roll += rollSens
 	if Input.is_action_pressed("RollClockwise"):
 		roll -= rollSens
-		
+	roll = max(-1,min(roll,1)) #Clamps throttle between 0 and 1
+	
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass
@@ -49,7 +48,10 @@ func _physics_process(delta):
 	var airDensity = 1.21+(-1.07e-4)*altitude+(2.57e-9)*altitude**2
 	
 	var thrustForce = -basis.z*throttle*maxThrust
-	var zDragForce = basis.z*(zDragCoefficent*airDensity*(velocityVector.z**2)/2*9.132)
+	var zDragForce = basis.z*(zDragCoefficent*airDensity*(velocityVector.z**2)/2*9.132) #Wing leading edge area
+	#var liftForce
+	#var yDragForce
+	
 	var zResultantForce = thrustForce + zDragForce
 	apply_central_force(zResultantForce)
 	print(throttle)
