@@ -26,7 +26,10 @@ shape = SubResource("BoxShape3D_pg1gg")
 transform = Transform3D(9.132, 0, 0, 0, 1, 0, 0, 0, 2.5, 2.08165e-12, 0.1, 2.55418)
 aileronRatio = 0.3
 stallAOA = 35
-ClMax = 1.8
+ClMax = 1.9
+noLiftAOA = 60
+CdStart = 0.04
+CdStall = 0.24
 
 [node name="ForcesDebug" parent="AeroSurfaces/AeroSurfaceConfig" instance=ExtResource("5_tljlt")]
 transform = Transform3D(0.109503, 0, 0, 0, 1, 0, 0, 0, 0.534551, 0, 0, 0)
