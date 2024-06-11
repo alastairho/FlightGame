@@ -1,8 +1,8 @@
-res://scenes/F16.tscn
+res://scenes/game.tscn
 res://scripts/surfaceConfig.gd
 res://assets/theme.tres
-res://scripts/aircraftPhysics.gd
-res://scenes/game.tscn
+res://scenes/F16.tscn
 res://scenes/aero_surface.tscn
 res://scenes/forces_debug.tscn
 res://scenes/UI.tscn
+res://scripts/aircraftPhysics.gd

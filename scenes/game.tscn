@@ -22,7 +22,6 @@ size = Vector3(5000, 5, 5000)
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 2.63802e-18, -1.97851e-17, -1.28614e-31, 0.991238, 0.132163, 1.99603e-17, -0.132165, 0.991225, 4.16298e-12, 10.1322, 15.9912)
-fov = 74.9989
 
 [node name="PhantomCameraHost" type="Node" parent="Camera3D"]
 script = ExtResource("1_eyqge")

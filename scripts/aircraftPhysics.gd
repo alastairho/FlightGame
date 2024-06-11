@@ -76,7 +76,7 @@ func _physics_process(delta):
 	var airDensity = 1.21+(-1.07e-4)*altitude+(2.57e-9)*altitude**2
 	
 	var thrustForce = -basis.z*throttle*maxThrust
-	var zDragForce = basis.z*(zDragCoefficent*airDensity*(velocityVector.z**2)/2)*9.132 #Wing leading edge area
+	var zDragForce = basis.z*((zDragCoefficent*airDensity*(velocityVector.z**2)/2)*9.132) #Wing leading edge area
 	
 	var liftForce
 	var yDragForce
@@ -104,16 +104,16 @@ func _physics_process(delta):
 		else:
 			liftCoefficent = 0
 		
-		liftForce = basis.y*((liftCoefficent*airDensity*(velocityVector.z**2))/2)*surfaceArea
+		liftForce = basis.y*(((liftCoefficent*airDensity*(velocityVector.z**2))/2)*surfaceArea)
 		
 		CdRate = (CdStall-CdStart)/stallAOA 
 		dragCoefficent = CdRate*aoa**2+CdStart
-		yDragForce = -basis.y*((zDragCoefficent*airDensity*(velocityVector.y**2))/2)*surfaceArea
+		yDragForce = -basis.y*(((zDragCoefficent*airDensity*(velocityVector.y**2))/2)*surfaceArea)
 		
 		liftForceSum += liftForce
 		yDragForceSum += yDragForce
 	
-	prints("Cl: " +str(liftCoefficent , " Cd: " +str(dragCoefficent)))
+	prints("Cl: " +str(liftCoefficent , " Cd: " +str(dragCoefficent , " Area " +str(surfaceArea))))
 	
 	var zResultantForce = thrustForce + zDragForce
 	var yResultantForce = liftForceSum + yDragForceSum
