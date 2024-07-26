@@ -1,11 +1,10 @@
 extends Node3D
 
-@onready var forceVisualX = %VectorX
-@onready var forceVisualY = %VectorY
-@onready var forceVisualZ = %VectorZ
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	var forceVisualX = %VectorX
+	var forceVisualY = %VectorY
+	var forceVisualZ = %VectorZ
 	forceVisualX.set_scale(Vector3(0,1,1))
 	forceVisualY.set_scale(Vector3(1,0,1))
 	forceVisualZ.set_scale(Vector3(1,1,0))

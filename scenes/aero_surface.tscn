@@ -2,23 +2,14 @@
 
 [ext_resource type="Script" path="res://scripts/surfaceConfig.gd" id="1_a64hf"]
 [ext_resource type="Script" path="res://scripts/surfaceDebug.gd" id="2_powji"]
+[ext_resource type="Material" uid="uid://bx2djqo15i4np" path="res://assets/wingDebugTex.tres" id="3_xrktj"]
+[ext_resource type="Material" uid="uid://cvot18xl32rqm" path="res://assets/aileronDebugTex.tres" id="4_diptr"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xn1yr"]
-shading_mode = 0
-albedo_color = Color(0, 0.505882, 1, 0.392157)
+[sub_resource type="BoxMesh" id="BoxMesh_whuuu"]
+material = ExtResource("3_xrktj")
 
-[sub_resource type="QuadMesh" id="QuadMesh_gueep"]
-lightmap_size_hint = Vector2i(7, 7)
-material = SubResource("StandardMaterial3D_xn1yr")
-orientation = 1
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u2vmc"]
-shading_mode = 0
-albedo_color = Color(1, 0.898039, 0.321569, 0.392157)
-
-[sub_resource type="QuadMesh" id="QuadMesh_mrp7t"]
-material = SubResource("StandardMaterial3D_u2vmc")
-orientation = 1
+[sub_resource type="BoxMesh" id="BoxMesh_dm2sn"]
+material = ExtResource("4_diptr")
 
 [node name="AeroSurfaceConfig" type="Node3D"]
 script = ExtResource("1_a64hf")
@@ -27,12 +18,10 @@ script = ExtResource("1_a64hf")
 script = ExtResource("2_powji")
 
 [node name="ASWing" type="MeshInstance3D" parent="AeroSurfaceDebug"]
-unique_name_in_owner = true
-mesh = SubResource("QuadMesh_gueep")
+mesh = SubResource("BoxMesh_whuuu")
 skeleton = NodePath("../..")
 
 [node name="ASAileron" type="MeshInstance3D" parent="AeroSurfaceDebug"]
-unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0.5)
-mesh = SubResource("QuadMesh_mrp7t")
+mesh = SubResource("BoxMesh_dm2sn")
 skeleton = NodePath("../..")

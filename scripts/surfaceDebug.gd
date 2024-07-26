@@ -1,14 +1,19 @@
 @tool
 extends Node3D
 
-@onready var wing = %ASWing
-@onready var aileron = %ASAileron
-var aileronRatio = 0
+var wing
+var aileron
+var aileronRatio := 0.00
+
+
+func _ready():
+	wing = $ASWing
+	aileron = $ASAileron
+	aileronRatio = get_parent().aileronRatio
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _surfaceVisualiser():
 	#Change position and scale of wing/aileron depending on aileron ratio
-	aileronRatio = get_parent().aileronRatio
 	aileron.set_scale(Vector3(1,1,aileronRatio))
 	aileron.set_position(Vector3(0,0,(1-aileronRatio)/2))
 	wing.set_scale(Vector3(1,1,1-aileronRatio))

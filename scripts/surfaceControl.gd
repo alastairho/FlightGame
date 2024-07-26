@@ -1,18 +1,35 @@
 extends Node3D
-var surfaces
+
+@export_group("Aircraft Characteristics")
+
+@export var stallAOA := 0
+
+@export var ClMax := 0.00
+@export var noLiftAOA := 0
+
+@export var CdStart := 0.00
+@export var CdStall := 0.00
+
+@export var zCdStart := 0.00
+@export var zCdStall := 0.00
+
+var surfaceAreaTopSum := 0.00
+var surfaceAreaFrontSum := 0.00
+
+var aircraftCharacteristics = []
+var wingProperties = []
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	surfaces = get_children()
+	var surfaces = get_child_count()
+	for i in range(surfaces):
+		var surfaceAreaTop = get_child(i).get_scale().x * get_child(i).get_scale().z
+		var surfaceAreaFront =  get_child(i).get_scale().y * get_child(i).get_scale().x
+		var aileronRatio = get_child(i).aileronRatio
+		var surfacePos = get_child(i).get_global_position()
+		surfaceAreaTopSum += surfaceAreaTop
+		surfaceAreaFrontSum += surfaceAreaFront
+		wingProperties.append([surfaceAreaTop, surfaceAreaFront, aileronRatio, surfacePos])
+	
+	aircraftCharacteristics = [stallAOA , ClMax, noLiftAOA, CdStart, CdStall, zCdStart, zCdStall, surfaceAreaTopSum, surfaceAreaFrontSum]
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _physics_process(delta):
-	for i in surfaces:
-		var pos = surfaces[i].get_global_position()
-		var aileronRatio = surfaces[i].get("aileronRatio")
-		var stallAOA = surfaces[i].get("stallAOA")
-		var ClMax = surfaces[i].get("ClMax")
-		var noLiftAOA = surfaces[i].get("noLiftAOA")
-		var CdStart = surfaces[i].get("CdStart")
-		var CdStall = surfaces[i].get("CdStall")
