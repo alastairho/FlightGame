@@ -15,6 +15,7 @@ extends Node3D
 
 var surfaceAreaTopSum := 0.00
 var surfaceAreaFrontSum := 0.00
+var surfaceAreaWingTopSum := 0.00
 
 var aircraftCharacteristics = []
 var wingProperties = []
@@ -29,7 +30,10 @@ func _ready():
 		var surfacePos = get_child(i).get_global_position()
 		surfaceAreaTopSum += surfaceAreaTop
 		surfaceAreaFrontSum += surfaceAreaFront
-		wingProperties.append([surfaceAreaTop, surfaceAreaFront, aileronRatio, surfacePos])
+		if aileronRatio == 0:
+			surfaceAreaWingTopSum += surfaceAreaTop
+		else:
+			wingProperties.append([surfaceAreaTop, surfaceAreaFront, aileronRatio, surfacePos])
 	
-	aircraftCharacteristics = [stallAOA , ClMax, noLiftAOA, CdStart, CdStall, zCdStart, zCdStall, surfaceAreaTopSum, surfaceAreaFrontSum]
+	aircraftCharacteristics = [stallAOA , ClMax, noLiftAOA, CdStart, CdStall, zCdStart, zCdStall, surfaceAreaTopSum, surfaceAreaFrontSum, surfaceAreaWingTopSum]
 

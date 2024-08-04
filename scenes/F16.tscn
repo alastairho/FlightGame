@@ -11,8 +11,7 @@ size = Vector3(10, 1, 15)
 
 [node name="F16" type="RigidBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 2.08165e-12)
-mass = 2200.0
-gravity_scale = 1.66533e-16
+mass = 7000.0
 script = ExtResource("1_o85qo")
 
 [node name="F16Model" parent="." instance=ExtResource("1_4vhwp")]
@@ -28,7 +27,7 @@ ClMax = 1.9
 noLiftAOA = 60
 CdStart = 0.04
 CdStall = 0.3
-zCdStall = 0.3
+zCdStall = 0.2
 
 [node name="AeroSurfaceConfig" parent="AeroSurfaces" instance=ExtResource("4_l2alc")]
 transform = Transform3D(3.808, 0, 0, 0, 0.5, 0, 0, 0, 2.5, -2.91145, -0.225753, 2.55418)
