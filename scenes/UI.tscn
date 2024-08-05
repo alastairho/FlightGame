@@ -14,9 +14,9 @@ theme = ExtResource("1_kie51")
 [node name="Statistics" type="Panel" parent="."]
 layout_mode = 0
 offset_left = 30.0
-offset_top = 52.0
+offset_top = 58.0
 offset_right = 246.0
-offset_bottom = 237.0
+offset_bottom = 259.0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Statistics"]
 layout_mode = 0
@@ -31,11 +31,13 @@ layout_mode = 2
 text = "AOA:
 Altitude:
 Speed:
+Mach:
 V Vel:"
 
 [node name="StatLabel" type="Label" parent="Statistics/HBoxContainer"]
 layout_mode = 2
 text = "0
+0
 0
 0
 0"

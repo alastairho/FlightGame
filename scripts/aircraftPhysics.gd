@@ -95,7 +95,7 @@ func _ready():
 	surfaceAreaWingTopSum = aircraftCharacteristics[9]
 	
 
-
+var aoa = 0
 func _physics_process(delta):
 	_player_input()
 	var velocityVector = Vector3(get_linear_velocity())
@@ -103,12 +103,18 @@ func _physics_process(delta):
 	var altitude = int(global_transform.origin.y)
 	var speed = sqrt(velocityVector.x**2+velocityVector.y**2+velocityVector.z**2)
 	var speedMach = speed/343
-	var aoa = 0
 	var airDensity
 	if altitude < 20800: #Limit of the model
 		airDensity = 1.21+(-1.07e-4)*altitude+(2.57e-9)*altitude**2
 	else:
 		airDensity = 0
+	
+	#Gravity
+	var gravityForce
+	if altitude > 4:
+		gravityForce = -basis.y*7000*9.81
+	else:
+		gravityForce = Vector3(0,0,0)
 	
 	#Thrust
 	var powerOutput: float
@@ -142,10 +148,10 @@ func _physics_process(delta):
 	
 	if aoa <= stallAOA and aoa >= -stallAOA:
 		liftCoefficent = ((ClMax/stallAOA)/clampedSpeedMach)*aoa
-	elif aoa > stallAOA or aoa < -stallAOA:
+	elif aoa > stallAOA:
 		liftCoefficent = -((((ClMax/clampedSpeedMach)*(aoa-(2*stallAOA)+noLiftAOA))*(aoa-noLiftAOA))/((stallAOA**2)-(2*noLiftAOA*stallAOA)+(noLiftAOA**2)))
-	elif aoa < 0:
-		liftCoefficent *= -1
+	elif aoa < -stallAOA:
+		liftCoefficent = ((((ClMax/clampedSpeedMach)*(-aoa-(2*stallAOA)+noLiftAOA))*(-aoa-noLiftAOA))/((stallAOA**2)-(2*noLiftAOA*stallAOA)+(noLiftAOA**2)))
 	else:
 		liftCoefficent = 0
 	
@@ -164,17 +170,18 @@ func _physics_process(delta):
 	liftRatio = 0.50 + roll/2
 	
 	#Pitch
+	aoa = pitch*60
 	
 	#Apply Forces and Info
 	var zResultantForce = thrustForce + zDragForce
-	var yResultantForce = liftForce + yDragForce
+	var yResultantForce = liftForce + yDragForce + gravityForce
 	
 	apply_central_force(zResultantForce + yResultantForce)
-	get_node("UI/Statistics/HBoxContainer/StatLabel").text = str(aoa) + "\n" + str(altitude) + "\n" + str(int(speed)) + "\n" + str(int(velocityVector.y)) + "\n" + str(speedMach)
+	get_node("UI/Statistics/HBoxContainer/StatLabel").text = str(aoa) + "\n" + str(altitude) + "\n" + str(int(speed)) + "\n" + str(speedMach) + "\n" + str(int(velocityVector.y))
 	get_node("UI/Controls/HBoxContainer2/ControlLabel").text = str(throttle) + "\n" + str(pitch) + "\n" + str(roll)
 	
 	#Debug
 	#print("z: " + str(zResultantForce) + " y: "+ str(yResultantForce))
 	#print("Cl: " +str(liftCoefficent) , " Cd: " +str(dragCoefficent) , " Thrust Force: " + str(thrustForce) ,  " Lift Force: " +str(liftForce), " Drag Force: " +str(yDragForce))
 	#print("lift ratio : " + str(liftRatio), " roll: " + str(roll))
-	print(str(thrustForce," ",maxThrust, " "))
+	#print(str(thrustForce," ",maxThrust, " "))
