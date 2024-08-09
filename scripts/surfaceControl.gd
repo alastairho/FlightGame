@@ -13,9 +13,11 @@ extends Node3D
 @export var zCdStart := 0.00
 @export var zCdStall := 0.00
 
+@export var rollLiftPercent := 0.00
+@export var pitchLiftPercent := 0.00
+
 var surfaceAreaTopSum := 0.00
 var surfaceAreaFrontSum := 0.00
-var surfaceAreaWingTopSum := 0.00
 
 var aircraftCharacteristics = []
 var wingProperties = []
@@ -24,16 +26,17 @@ var wingProperties = []
 func _ready():
 	var surfaces = get_child_count()
 	for i in range(surfaces):
-		var surfaceAreaTop = get_child(i).get_scale().x * get_child(i).get_scale().z
-		var surfaceAreaFront =  get_child(i).get_scale().y * get_child(i).get_scale().x
+		var surfacex = get_child(i).get_scale().x
+		var surfacey = get_child(i).get_scale().y
+		var surfacez = get_child(i).get_scale().z
+		var surfaceAreaTop = surfacex * surfacez
+		var surfaceAreaFront =  surfacey * surfacex
 		var aileronRatio = get_child(i).aileronRatio
 		var surfacePos = get_child(i).get_global_position()
 		surfaceAreaTopSum += surfaceAreaTop
 		surfaceAreaFrontSum += surfaceAreaFront
-		if aileronRatio == 0:
-			surfaceAreaWingTopSum += surfaceAreaTop
-		else:
-			wingProperties.append([surfaceAreaTop, surfaceAreaFront, aileronRatio, surfacePos])
+		if aileronRatio != 0:
+			wingProperties.append([surfacex, surfacey, surfacez, surfaceAreaTop, surfaceAreaFront, aileronRatio, surfacePos])
 	
-	aircraftCharacteristics = [stallAOA , ClMax, noLiftAOA, CdStart, CdStall, zCdStart, zCdStall, surfaceAreaTopSum, surfaceAreaFrontSum, surfaceAreaWingTopSum]
+	aircraftCharacteristics = [stallAOA , ClMax, noLiftAOA, CdStart, CdStall, zCdStart, zCdStall, surfaceAreaTopSum, surfaceAreaFrontSum, rollLiftPercent, pitchLiftPercent]
 

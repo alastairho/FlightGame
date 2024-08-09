@@ -47,10 +47,10 @@ func _player_input():
 	
 
 #Airplane Properties
-var wingProperties: Array = []
 
-var centerWeightPercent = 0.80
-var wingWeightPercent = 0.20
+@export var aircraftMass: int
+@export var rollMomentOfInertia: float
+@export var pitchMomentOfInertia: float
 
 var maxAlt = 18288 #A max
 var maxPossibleThrust = 160000 #T max
@@ -61,7 +61,6 @@ var maxAltEndThrust = 31138 #T lowend
 var seaLevelMaxThrustMach = 0.9 # M tmax
 var maxAltMaxThrustMach = 1.8 #M tlastmax
 
-var positionOffset
 var aileronRatio
 var stallAOA
 var ClMax
@@ -71,16 +70,20 @@ var CdStall
 var zCdStart
 var zCdStall
 var liftCoefficent
+
 var surfaceAreaTopSum
 var surfaceAreaFrontSum
-var surfaceAreaWingTopSum
+var surfaceAreaWingTopSum := 0.00
 
-var liftRatio = 0.50
-#wingProperties.append([surfaceAreaTop, surfaceAreaFront, aileronRatio, surfacePos])
-#aircraftCharacteristics = [stallAOA , ClMax, noLiftAOA, CdStart, CdStall, surfaceAreaTopSum, surfaceAreaFrontSum]
+var rollLiftPercent
+@export var aircraftRollRadius: float
+@export var aircraftPitchRadius: float
+
+var pitchLiftPercent
 
 #Physics Calculations
 func _ready():
+	mass = aircraftMass
 	var aircraftCharacteristics = $AeroSurfaces.aircraftCharacteristics
 	var wingProperties = $AeroSurfaces.wingProperties
 	stallAOA = aircraftCharacteristics[0]
@@ -92,10 +95,14 @@ func _ready():
 	zCdStall = aircraftCharacteristics[6]
 	surfaceAreaTopSum = aircraftCharacteristics[7]
 	surfaceAreaFrontSum = aircraftCharacteristics[8]
-	surfaceAreaWingTopSum = aircraftCharacteristics[9]
-	
+	rollLiftPercent = aircraftCharacteristics[9]
+	pitchLiftPercent = aircraftCharacteristics[10]
+
+	for wings in wingProperties:
+		surfaceAreaWingTopSum += wings[3]	#Wing top area
 
 var aoa = 0
+var lift
 func _physics_process(delta):
 	_player_input()
 	var velocityVector = Vector3(get_linear_velocity())
@@ -112,7 +119,7 @@ func _physics_process(delta):
 	#Gravity
 	var gravityForce
 	if altitude > 4:
-		gravityForce = -basis.y*7000*9.81
+		gravityForce = -basis.y*mass*9.81
 	else:
 		gravityForce = Vector3(0,0,0)
 	
@@ -131,10 +138,10 @@ func _physics_process(delta):
 	
 	if speedMach <= seaLevelMaxThrustMach+maxThrustMachDepAlt and speedMach >= 0:
 		maxThrust = ((maxPossibleThrust*(1-altitudeRatio)-highestThrustDepAlt)/(seaLevelMaxThrustMach+maxThrustMachDepAlt)*speedMach)+maxAltStartThrust+highestThrustDepAlt
-		#print("line" + " " + str(maxThrust))
+		 
 	elif speedMach > seaLevelMaxThrustMach+maxThrustMachDepAlt:
-		maxThrust = (-seaLevelEndThrust-lowestThrustDepAlt)*((speedMach-seaLevelMaxThrustMach-lowestThrustDepAlt)**2)+(maxPossibleThrust*(1-altitude/maxAlt))
-		#print("parabola" + " " + str(maxThrust))
+		maxThrust = (-seaLevelEndThrust-lowestThrustDepAlt)*((speedMach-seaLevelMaxThrustMach-lowestThrustDepAlt)**2)+(maxPossibleThrust*(1-altitudeRatio))
+		
 	else:
 		maxThrust = 0
 		
@@ -155,7 +162,8 @@ func _physics_process(delta):
 	else:
 		liftCoefficent = 0
 	
-	var liftForce = basis.y*((liftCoefficent*(airDensity*(velocityVector.z**2))/2)*surfaceAreaWingTopSum)
+	lift = (liftCoefficent*(airDensity*(velocityVector.z**2))/2)*surfaceAreaWingTopSum
+	var liftForce = basis.y*lift
 	
 	#Drag
 	var CdRate = (CdStall-CdStart)/(stallAOA**2)
@@ -164,24 +172,45 @@ func _physics_process(delta):
 	
 	var zCdRate = (zCdStall-zCdStart)/(stallAOA**2)
 	var zDragCoefficent = zCdRate*(aoa**2)+zCdStart
-	var zDragForce = basis.z*((zDragCoefficent*(airDensity*(velocityVector.z**2))/2)*surfaceAreaFrontSum)
+	var zDragForce = -basis.z*((zDragCoefficent*(airDensity*(velocityVector.z**2))/2)*surfaceAreaFrontSum)
 	
 	#Roll
-	liftRatio = 0.50 + roll/2
+	var rollLift = abs(roll)*25000 #lift*rollLiftPercent maybe use this instead when AOA is implemented
+	var rollTorque: Vector3
+	if roll > 0:
+		rollTorque = basis.z*rollLift*aircraftRollRadius
+	elif roll < 0:
+		rollTorque = -basis.z*rollLift*aircraftRollRadius
 	
+	'''
+	if roll != 0:
+		var rollLift = abs(roll)*rollLiftPercent*lift
+		var radRolled = (rollLift*aircraftRollRadius*delta**2)/rollMomentOfInertia
+		var angleRolled = rad_to_deg(radRolled)
+		if roll < 0:
+			angleRolled *= -1
+	'''
 	#Pitch
 	aoa = pitch*60
+	var pitchLift = abs(pitch)*25000 #lift*rollLiftPercent maybe use this instead when AOA is implemented
+	var pitchTorque: Vector3
+	if pitch > 0:
+		pitchTorque = basis.x*pitchLift*aircraftRollRadius
+	elif pitch < 0:
+		pitchTorque = -basis.x*pitchLift*aircraftRollRadius
 	
 	#Apply Forces and Info
 	var zResultantForce = thrustForce + zDragForce
 	var yResultantForce = liftForce + yDragForce + gravityForce
 	
 	apply_central_force(zResultantForce + yResultantForce)
+	apply_torque(rollTorque)
+	apply_torque(pitchTorque)
 	get_node("UI/Statistics/HBoxContainer/StatLabel").text = str(aoa) + "\n" + str(altitude) + "\n" + str(int(speed)) + "\n" + str(speedMach) + "\n" + str(int(velocityVector.y))
 	get_node("UI/Controls/HBoxContainer2/ControlLabel").text = str(throttle) + "\n" + str(pitch) + "\n" + str(roll)
 	
 	#Debug
 	#print("z: " + str(zResultantForce) + " y: "+ str(yResultantForce))
 	#print("Cl: " +str(liftCoefficent) , " Cd: " +str(dragCoefficent) , " Thrust Force: " + str(thrustForce) ,  " Lift Force: " +str(liftForce), " Drag Force: " +str(yDragForce))
-	#print("lift ratio : " + str(liftRatio), " roll: " + str(roll))
 	#print(str(thrustForce," ",maxThrust, " "))
+	#print(str(rollTorque," ",liftForce, " "))

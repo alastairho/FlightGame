@@ -8,3 +8,4 @@ res://scenes/aero_surface.tscn
 res://scenes/forces_debug.tscn
 res://scenes/UI.tscn
 res://scripts/aircraftPhysics.gd
+res://scripts/surfaceControl.gd
