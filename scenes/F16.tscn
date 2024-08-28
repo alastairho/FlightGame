@@ -10,14 +10,11 @@
 size = Vector3(10, 1, 15)
 
 [node name="F16" type="RigidBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 2.08165e-12)
 gravity_scale = 1.66533e-16
 inertia = Vector3(75673.6, 85554.4, 12874.8)
 angular_damp = 5.0
 script = ExtResource("1_o85qo")
 aircraftMass = 7000
-rollMomentOfInertia = 75673.6
-pitchMomentOfInertia = 12874.8
 aircraftRollRadius = 5.0
 aircraftPitchRadius = 6.5
 
@@ -33,8 +30,9 @@ stallAOA = 35
 ClMax = 1.9
 noLiftAOA = 60
 CdStart = 0.04
-CdStall = 0.3
-zCdStall = 0.2
+CdStall = 0.4
+zCdStart = 0.04
+zCdStall = 0.4
 rollLiftPercent = 0.1
 pitchLiftPercent = 0.1
 
@@ -71,7 +69,7 @@ aileronRatio = 0.3
 transform = Transform3D(0.109503, 0, 0, 0, 1, 0, 0, 0, 0.534551, 0, 0, 0)
 
 [node name="AeroSurfaceConfig5" parent="AeroSurfaces" instance=ExtResource("4_l2alc")]
-transform = Transform3D(2.51017, 0, 0, 0, 0.5, 0, 0, 0, 13.5452, -0.0224161, -0.229, 0.701908)
+transform = Transform3D(2.51, 0, 0, 0, 0.5, 0, 0, 0, 12, -0.0224161, -0.229, 1.43702)
 
 [node name="ForcesDebug" parent="AeroSurfaces/AeroSurfaceConfig5" instance=ExtResource("5_tljlt")]
 transform = Transform3D(0.109503, 0, 0, 0, 1, 0, 0, 0, 0.534551, 0, 0, 0)

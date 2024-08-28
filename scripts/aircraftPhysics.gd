@@ -49,8 +49,6 @@ func _player_input():
 #Airplane Properties
 
 @export var aircraftMass: int
-@export var rollMomentOfInertia: float
-@export var pitchMomentOfInertia: float
 
 var maxAlt = 18288 #A max
 var maxPossibleThrust = 160000 #T max
@@ -119,7 +117,7 @@ func _physics_process(delta):
 	#Gravity
 	var gravityForce
 	if altitude > 4:
-		gravityForce = -basis.y*mass*9.81
+		gravityForce = Vector3(0,mass*-9.81,0)
 	else:
 		gravityForce = Vector3(0,0,0)
 	
@@ -159,8 +157,10 @@ func _physics_process(delta):
 		liftCoefficent = -((((ClMax/clampedSpeedMach)*(aoa-(2*stallAOA)+noLiftAOA))*(aoa-noLiftAOA))/((stallAOA**2)-(2*noLiftAOA*stallAOA)+(noLiftAOA**2)))
 	elif aoa < -stallAOA:
 		liftCoefficent = ((((ClMax/clampedSpeedMach)*(-aoa-(2*stallAOA)+noLiftAOA))*(-aoa-noLiftAOA))/((stallAOA**2)-(2*noLiftAOA*stallAOA)+(noLiftAOA**2)))
-	else:
+	
+	if aoa >= noLiftAOA or aoa <= -noLiftAOA:
 		liftCoefficent = 0
+	
 	
 	lift = (liftCoefficent*(airDensity*(velocityVector.z**2))/2)*surfaceAreaWingTopSum
 	var liftForce = basis.y*lift
@@ -171,11 +171,11 @@ func _physics_process(delta):
 	var yDragForce = -basis.y*((dragCoefficent*(airDensity*(velocityVector.y**2))/2)*surfaceAreaTopSum)
 	
 	var zCdRate = (zCdStall-zCdStart)/(stallAOA**2)
-	var zDragCoefficent = zCdRate*(aoa**2)+zCdStart
-	var zDragForce = -basis.z*((zDragCoefficent*(airDensity*(velocityVector.z**2))/2)*surfaceAreaFrontSum)
+	var zDragCoefficent = zCdRate+zCdStart	#Removed AOA here because this should be constant
+	var zDragForce = basis.z*((zDragCoefficent*(airDensity*(velocityVector.z**2))/2)*(surfaceAreaFrontSum))
 	
 	#Roll
-	var rollLift = abs(roll)*25000 #lift*rollLiftPercent maybe use this instead when AOA is implemented
+	var rollLift = abs(roll)*25000
 	var rollTorque: Vector3
 	if roll > 0:
 		rollTorque = basis.z*rollLift*aircraftRollRadius
@@ -183,6 +183,7 @@ func _physics_process(delta):
 		rollTorque = -basis.z*rollLift*aircraftRollRadius
 	
 	'''
+	My Previous idea of the model
 	if roll != 0:
 		var rollLift = abs(roll)*rollLiftPercent*lift
 		var radRolled = (rollLift*aircraftRollRadius*delta**2)/rollMomentOfInertia
@@ -191,26 +192,29 @@ func _physics_process(delta):
 			angleRolled *= -1
 	'''
 	#Pitch
-	aoa = pitch*60
-	var pitchLift = abs(pitch)*25000 #lift*rollLiftPercent maybe use this instead when AOA is implemented
+	var pitchLift = abs(pitch)*15000
 	var pitchTorque: Vector3
 	if pitch > 0:
-		pitchTorque = basis.x*pitchLift*aircraftRollRadius
+		pitchTorque = basis.x*pitchLift*aircraftPitchRadius
 	elif pitch < 0:
-		pitchTorque = -basis.x*pitchLift*aircraftRollRadius
+		pitchTorque = -basis.x*pitchLift*aircraftPitchRadius
 	
 	#Apply Forces and Info
 	var zResultantForce = thrustForce + zDragForce
-	var yResultantForce = liftForce + yDragForce + gravityForce
+	var yResultantForce = liftForce + yDragForce #+ gravityForce
+	var force = zResultantForce + yResultantForce
+	var torque = rollTorque + pitchTorque
 	
-	apply_central_force(zResultantForce + yResultantForce)
-	apply_torque(rollTorque)
-	apply_torque(pitchTorque)
+	aoa = rad_to_deg(acos(velocityVector.normalized().dot(-basis.z.normalized())))
+	
+	apply_central_force(force)
+	apply_torque(torque)
 	get_node("UI/Statistics/HBoxContainer/StatLabel").text = str(aoa) + "\n" + str(altitude) + "\n" + str(int(speed)) + "\n" + str(speedMach) + "\n" + str(int(velocityVector.y))
 	get_node("UI/Controls/HBoxContainer2/ControlLabel").text = str(throttle) + "\n" + str(pitch) + "\n" + str(roll)
 	
 	#Debug
 	#print("z: " + str(zResultantForce) + " y: "+ str(yResultantForce))
-	#print("Cl: " +str(liftCoefficent) , " Cd: " +str(dragCoefficent) , " Thrust Force: " + str(thrustForce) ,  " Lift Force: " +str(liftForce), " Drag Force: " +str(yDragForce))
+	print("Cl: " +str(liftCoefficent) , " Cd: " +str(dragCoefficent) , " Thrust Force: " + str(thrustForce) ,  " Lift Force: " +str(liftForce), " Drag Force: " +str(yDragForce), " Force: " +str(force))
 	#print(str(thrustForce," ",maxThrust, " "))
 	#print(str(rollTorque," ",liftForce, " "))
+	#print(str(aoa," ",-basis.z.normalized(), " ", velocityVector.normalized()))
