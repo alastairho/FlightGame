@@ -66,11 +66,12 @@ var noLiftAOA
 var CdStart
 var CdStall
 var zCdStart
-var zCdStall
+var xCdStart
 var liftCoefficent
 
 var surfaceAreaTopSum
 var surfaceAreaFrontSum
+var surfaceAreaSide
 var surfaceAreaWingTopSum := 0.00
 
 var rollLiftPercent
@@ -83,27 +84,36 @@ var pitchLiftPercent
 func _ready():
 	mass = aircraftMass
 	var aircraftCharacteristics = $AeroSurfaces.aircraftCharacteristics
+	var bodyProperties = $AeroSurfaces.bodyProperties
 	var wingProperties = $AeroSurfaces.wingProperties
+	var stabilProperties = $AeroSurfaces.stabilProperties
 	stallAOA = aircraftCharacteristics[0]
 	ClMax = aircraftCharacteristics[1]
 	noLiftAOA = aircraftCharacteristics[2]
 	CdStart = aircraftCharacteristics[3]
 	CdStall = aircraftCharacteristics[4]
 	zCdStart = aircraftCharacteristics[5]
-	zCdStall = aircraftCharacteristics[6]
+	xCdStart = aircraftCharacteristics[6]
 	surfaceAreaTopSum = aircraftCharacteristics[7]
 	surfaceAreaFrontSum = aircraftCharacteristics[8]
-	rollLiftPercent = aircraftCharacteristics[9]
-	pitchLiftPercent = aircraftCharacteristics[10]
+	surfaceAreaSide = aircraftCharacteristics[9]
+	rollLiftPercent = aircraftCharacteristics[10]
+	pitchLiftPercent = aircraftCharacteristics[11]
 
 	for wings in wingProperties:
 		surfaceAreaWingTopSum += wings[3]	#Wing top area
+	for stabilizers in stabilProperties:
+		surfaceAreaWingTopSum += stabilizers[3]
 
 var aoa = 0
 var lift
 func _physics_process(delta):
 	_player_input()
-	var velocityVector = Vector3(get_linear_velocity())
+	var globalVelocityVector = Vector3(get_linear_velocity())
+	var velocityVector : Vector3
+	velocityVector.x = transform.basis.x.dot(globalVelocityVector.normalized())*globalVelocityVector.length()
+	velocityVector.y = transform.basis.y.dot(globalVelocityVector.normalized())*globalVelocityVector.length()
+	velocityVector.z = transform.basis.z.dot(globalVelocityVector.normalized())*globalVelocityVector.length()
 	
 	var altitude = int(global_transform.origin.y)
 	var speed = sqrt(velocityVector.x**2+velocityVector.y**2+velocityVector.z**2)
@@ -170,9 +180,17 @@ func _physics_process(delta):
 	var dragCoefficent = CdRate*(aoa**2)+CdStart
 	var yDragForce = -basis.y*((dragCoefficent*(airDensity*(velocityVector.y**2))/2)*surfaceAreaTopSum)
 	
-	var zCdRate = (zCdStall-zCdStart)/(stallAOA**2)
-	var zDragCoefficent = zCdRate+zCdStart	#Removed AOA here because this should be constant
+	var zDragCoefficent = zCdStart
 	var zDragForce = basis.z*((zDragCoefficent*(airDensity*(velocityVector.z**2))/2)*(surfaceAreaFrontSum))
+	
+	var xDragCoefficent = xCdStart
+	var xDragForce : Vector3
+	if velocityVector.x < 0:
+		xDragForce = basis.x*((xDragCoefficent*(airDensity*(velocityVector.x**2))/2)*(surfaceAreaFrontSum))
+	elif velocityVector.x > 0:
+		xDragForce = -basis.x*((xDragCoefficent*(airDensity*(velocityVector.x**2))/2)*(surfaceAreaFrontSum))
+	else:
+		xDragForce = Vector3(0,0,0)
 	
 	#Roll
 	var rollLift = abs(roll)*25000
@@ -202,7 +220,7 @@ func _physics_process(delta):
 	#Apply Forces and Info
 	var zResultantForce = thrustForce + zDragForce
 	var yResultantForce = liftForce + yDragForce #+ gravityForce
-	var force = zResultantForce + yResultantForce
+	var force = zResultantForce + yResultantForce + xDragForce
 	var torque = rollTorque + pitchTorque
 	
 	aoa = rad_to_deg(acos(velocityVector.normalized().dot(-basis.z.normalized())))
@@ -214,7 +232,7 @@ func _physics_process(delta):
 	
 	#Debug
 	#print("z: " + str(zResultantForce) + " y: "+ str(yResultantForce))
-	print("Cl: " +str(liftCoefficent) , " Cd: " +str(dragCoefficent) , " Thrust Force: " + str(thrustForce) ,  " Lift Force: " +str(liftForce), " Drag Force: " +str(yDragForce), " Force: " +str(force))
+	#print("Cl: " +str(liftCoefficent) , " Cd: " +str(dragCoefficent) , " Thrust Force: " + str(thrustForce) ,  " Lift Force: " +str(liftForce), " Drag Force: " +str(xDragForce), " Force: " +str(force))
 	#print(str(thrustForce," ",maxThrust, " "))
 	#print(str(rollTorque," ",liftForce, " "))
-	#print(str(aoa," ",-basis.z.normalized(), " ", velocityVector.normalized()))
+	print(str(velocityVector," ",aoa))

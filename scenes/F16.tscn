@@ -31,8 +31,8 @@ ClMax = 1.9
 noLiftAOA = 60
 CdStart = 0.04
 CdStall = 0.4
-zCdStart = 0.04
-zCdStall = 0.4
+zCdStart = 0.4
+xCdStart = 0.4
 rollLiftPercent = 0.1
 pitchLiftPercent = 0.1
 
