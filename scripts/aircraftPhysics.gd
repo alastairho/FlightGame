@@ -5,6 +5,7 @@ extends RigidBody3D
 var throttle = 0
 var pitch = 0
 var roll = 0
+var aoa = 0
 
 func _player_input():
 	const THROTTLESENS = 0.01
@@ -58,6 +59,7 @@ var maxAltStartThrust = 4448 #T lowstart
 var maxAltEndThrust = 31138 #T lowend
 var seaLevelMaxThrustMach = 0.9 # M tmax
 var maxAltMaxThrustMach = 1.8 #M tlastmax
+var machEffect = 2
 
 var aileronRatio
 var stallAOA
@@ -104,9 +106,9 @@ func _ready():
 		surfaceAreaWingTopSum += wings[3]	#Wing top area
 	for stabilizers in stabilProperties:
 		surfaceAreaWingTopSum += stabilizers[3]
-
-var aoa = 0
+		
 var lift
+var aoaSens = 2
 func _physics_process(delta):
 	_player_input()
 	var globalVelocityVector = Vector3(get_linear_velocity())
@@ -126,7 +128,7 @@ func _physics_process(delta):
 	
 	#Gravity
 	var gravityForce
-	if altitude > 4:
+	if altitude > 5:
 		gravityForce = Vector3(0,mass*-9.81,0)
 	else:
 		gravityForce = Vector3(0,0,0)
@@ -159,14 +161,12 @@ func _physics_process(delta):
 	var thrustForce = -basis.z*(powerOutput*maxThrust)
 	
 	#Lift
-	var clampedSpeedMach = clamp(speedMach,1,INF)
-	
 	if aoa <= stallAOA and aoa >= -stallAOA:
-		liftCoefficent = ((ClMax/stallAOA)/clampedSpeedMach)*aoa
+		liftCoefficent = (((ClMax/stallAOA)/(speedMach+1)**machEffect)/(speedMach+1))*aoa
 	elif aoa > stallAOA:
-		liftCoefficent = -((((ClMax/clampedSpeedMach)*(aoa-(2*stallAOA)+noLiftAOA))*(aoa-noLiftAOA))/((stallAOA**2)-(2*noLiftAOA*stallAOA)+(noLiftAOA**2)))
+		liftCoefficent = -((((ClMax/(speedMach+1)**machEffect)*(aoa-(2*stallAOA)+noLiftAOA))*(aoa-noLiftAOA))/((stallAOA**2)-(2*noLiftAOA*stallAOA)+(noLiftAOA**2)))
 	elif aoa < -stallAOA:
-		liftCoefficent = ((((ClMax/clampedSpeedMach)*(-aoa-(2*stallAOA)+noLiftAOA))*(-aoa-noLiftAOA))/((stallAOA**2)-(2*noLiftAOA*stallAOA)+(noLiftAOA**2)))
+		liftCoefficent = ((((ClMax/(speedMach+1)**machEffect)*(-aoa-(2*stallAOA)+noLiftAOA))*(-aoa-noLiftAOA))/((stallAOA**2)-(2*noLiftAOA*stallAOA)+(noLiftAOA**2)))
 	
 	if aoa >= noLiftAOA or aoa <= -noLiftAOA:
 		liftCoefficent = 0
@@ -177,18 +177,18 @@ func _physics_process(delta):
 	
 	#Drag
 	var CdRate = (CdStall-CdStart)/(stallAOA**2)
-	var dragCoefficent = CdRate*(aoa**2)+CdStart
-	var yDragForce = -basis.y*((dragCoefficent*(airDensity*(velocityVector.y**2))/2)*surfaceAreaTopSum)
+	var dragCoefficent = (CdRate/(speedMach+1)**machEffect)*(aoa**2)+CdStart
+	var yDragForce = -basis.y*((dragCoefficent*(airDensity*(globalVelocityVector.z**2))/2)*surfaceAreaFrontSum)
 	
 	var zDragCoefficent = zCdStart
-	var zDragForce = basis.z*((zDragCoefficent*(airDensity*(velocityVector.z**2))/2)*(surfaceAreaFrontSum))
+	var zDragForce = basis.z*((zDragCoefficent*(airDensity*(velocityVector.y**2))/2)*(surfaceAreaTopSum))
 	
 	var xDragCoefficent = xCdStart
 	var xDragForce : Vector3
 	if velocityVector.x < 0:
-		xDragForce = basis.x*((xDragCoefficent*(airDensity*(velocityVector.x**2))/2)*(surfaceAreaFrontSum))
+		xDragForce = basis.x*((xDragCoefficent*(airDensity*(velocityVector.x**2))/2)*(surfaceAreaSide))
 	elif velocityVector.x > 0:
-		xDragForce = -basis.x*((xDragCoefficent*(airDensity*(velocityVector.x**2))/2)*(surfaceAreaFrontSum))
+		xDragForce = -basis.x*((xDragCoefficent*(airDensity*(velocityVector.x**2))/2)*(surfaceAreaSide))
 	else:
 		xDragForce = Vector3(0,0,0)
 	
@@ -210,7 +210,8 @@ func _physics_process(delta):
 			angleRolled *= -1
 	'''
 	#Pitch
-	var pitchLift = abs(pitch)*15000
+	var pitchLift : float
+	pitchLift = abs(pitch)*15000
 	var pitchTorque: Vector3
 	if pitch > 0:
 		pitchTorque = basis.x*pitchLift*aircraftPitchRadius
@@ -219,15 +220,15 @@ func _physics_process(delta):
 	
 	#Apply Forces and Info
 	var zResultantForce = thrustForce + zDragForce
-	var yResultantForce = liftForce + yDragForce #+ gravityForce
+	var yResultantForce = liftForce + yDragForce + gravityForce
 	var force = zResultantForce + yResultantForce + xDragForce
 	var torque = rollTorque + pitchTorque
 	
-	aoa = rad_to_deg(acos(velocityVector.normalized().dot(-basis.z.normalized())))
+	aoa = rad_to_deg(acos(globalVelocityVector.normalized().dot(-basis.z.normalized())))
 	
 	apply_central_force(force)
 	apply_torque(torque)
-	get_node("UI/Statistics/HBoxContainer/StatLabel").text = str(aoa) + "\n" + str(altitude) + "\n" + str(int(speed)) + "\n" + str(speedMach) + "\n" + str(int(velocityVector.y))
+	get_node("UI/Statistics/HBoxContainer/StatLabel").text = str(aoa) + "\n" + str(altitude) + "\n" + str(int(speed)) + "\n" + str(speedMach) + "\n" + str(int(globalVelocityVector.y))
 	get_node("UI/Controls/HBoxContainer2/ControlLabel").text = str(throttle) + "\n" + str(pitch) + "\n" + str(roll)
 	
 	#Debug
@@ -235,4 +236,4 @@ func _physics_process(delta):
 	#print("Cl: " +str(liftCoefficent) , " Cd: " +str(dragCoefficent) , " Thrust Force: " + str(thrustForce) ,  " Lift Force: " +str(liftForce), " Drag Force: " +str(xDragForce), " Force: " +str(force))
 	#print(str(thrustForce," ",maxThrust, " "))
 	#print(str(rollTorque," ",liftForce, " "))
-	print(str(velocityVector," ",aoa))
+	print(str(velocityVector," ",aoa, " ", 	velocityVector.normalized().dot(-basis.z.normalized())))
