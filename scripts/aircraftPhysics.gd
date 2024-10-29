@@ -236,4 +236,4 @@ func _physics_process(delta):
 	#print("Cl: " +str(liftCoefficent) , " Cd: " +str(dragCoefficent) , " Thrust Force: " + str(thrustForce) ,  " Lift Force: " +str(liftForce), " Drag Force: " +str(xDragForce), " Force: " +str(force))
 	#print(str(thrustForce," ",maxThrust, " "))
 	#print(str(rollTorque," ",liftForce, " "))
-	print(str(velocityVector," ",aoa, " ", 	velocityVector.normalized().dot(-basis.z.normalized())))
+	#print(str(velocityVector," ",aoa, " ", 	velocityVector.normalized().dot(-basis.z.normalized())))
