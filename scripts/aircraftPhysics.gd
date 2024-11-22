@@ -128,7 +128,7 @@ func _physics_process(delta):
 	
 	#Gravity
 	var gravityForce
-	if altitude > 5:
+	if altitude > 1:
 		gravityForce = Vector3(0,mass*-9.81,0)
 	else:
 		gravityForce = Vector3(0,0,0)
